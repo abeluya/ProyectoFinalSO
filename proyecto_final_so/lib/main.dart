@@ -1,3 +1,19 @@
+/*
+//  UNIVERSIDAD ESTATAL A DISTANCIA
+//  VICERRECTORÍA ACADÉMICA
+//  ESCUELA DE CIENCIAS EXACTAS Y NATURALES
+//  Proyecto Práctico
+//  Sistemas Operativos
+//  Código: 00881
+//  Grupo: 01
+//  Nombre: Abraham Oviedo Lorío
+//  Cédula: 1-1372-0841
+//  Centro Universitario: San José (01)
+//  Fecha de creación del programa: 14/08/2019
+//  Fecha de Entrega: 19 de abril del 2019
+//  II Cuatrimestre. 2019
+*/
+
 import 'package:flutter/material.dart';
 import 'package:validate/validate.dart';
 
@@ -12,10 +28,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _InfoEstudiante {
-  int cedula = 0;
-  int codigo_curso = 0;
-  double costo = 0;
-  double nota = 0;
+  int cedula;
+  int codigo_curso;
+  int centro_universitario;
+  double costo;
+  double nota;
   String nombre_completo ='';
   String nombre_curso = '';
   String provincia = '';
@@ -27,26 +44,6 @@ class _InfoEstudiante {
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   _InfoEstudiante _data = new _InfoEstudiante();
-
-  String _validateEmail(String value) {
-    // If empty value, the isEmail function throw a error.
-    // So I changed this function with try and catch.
-    try {
-      Validate.isEmail(value);
-    } catch (e) {
-      return 'The E-mail Address must be a valid email address.';
-    }
-
-    return null;
-  }
-
-  String _validatePassword(String value) {
-    if (value.length < 8) {
-      return 'The Password must be at least 8 characters.';
-    }
-
-    return null;
-  }
 
   String _validateField (String value) {
     if (value.length < 1) {
@@ -81,20 +78,31 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
+  String _validateNota (String value) {
+    try {
+      if (double.parse(value) < 1 || double.parse(value) > 100) {
+        return 'La nota debe ser un valor entre 1 y 100';
+      }
+    }
+    catch (e) {
+      return 'Digite un número';
+    }
+    return null;
+  }
+
   void submit() {
     // First validate form.
     if (this._formKey.currentState.validate()) {
-      _formKey.currentState.save(); // Save our form now.
+      _formKey.currentState.save(); // Se guardam los datos en la lista
 
       print('Mostrando datos almacenados');
       print('Cedula: ${_data.cedula}');
       print('Nombre: ${_data.nombre_completo}');
       print('Curso: ${_data.nombre_curso}');
-      _ackAlert(context);
+      _confirmacionModal(context);
     }
   }
-  Future<void> _ackAlert(BuildContext context) {
-    String nombre = _data.nombre_completo;
+  Future<void> _confirmacionModal(BuildContext context) { //Muestra un modal cuando los datos se guardaron
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -129,7 +137,18 @@ class _LoginPageState extends State<LoginPage> {
             child: new ListView(
               children: <Widget>[
                 new TextFormField(
-                    keyboardType: TextInputType.number, // Numeros
+                    keyboardType: TextInputType.number, // Centro Universitario
+                    decoration: new InputDecoration(
+                        hintText: 'Ingrese código del CU',
+                        labelText: 'Centro universitario'
+                    ),
+                    validator: this._validateIntegers,
+                    onSaved: (String value){
+                      this._data.centro_universitario = int.parse(value);
+                    }
+                ),
+                new TextFormField(
+                    keyboardType: TextInputType.number, // Cedula
                     decoration: new InputDecoration(
                         hintText: 'Ingrese su cédula',
                         labelText: 'Cedula'
@@ -140,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 ),
                 new TextFormField(
-                    keyboardType: TextInputType.text, // Texto plano
+                    keyboardType: TextInputType.text, // Nombre completo
                     decoration: new InputDecoration(
                         hintText: 'Ingrese su nombre y apellidos',
                         labelText: 'Nombre completo'
@@ -151,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                     }
                 ),
                 new TextFormField(
-                    keyboardType: TextInputType.text, // Texto plano
+                    keyboardType: TextInputType.text, // Provincia
                     decoration: new InputDecoration(
                         hintText: 'Ingrese su Provincia',
                         labelText: 'Provincia'
@@ -162,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                     }
                 ),
                 new TextFormField(
-                    keyboardType: TextInputType.number, // Texto plano
+                    keyboardType: TextInputType.number, // Codigo del curso
                     decoration: new InputDecoration(
                         hintText: 'Ingrese código del curso',
                         labelText: 'Código'
@@ -173,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                     }
                 ),
                 new TextFormField(
-                    keyboardType: TextInputType.text, // Texto plano
+                    keyboardType: TextInputType.text, // Nombre del curso
                     decoration: new InputDecoration(
                         hintText: 'Ingrese el nombre del curso',
                         labelText: 'Curso'
@@ -184,18 +203,18 @@ class _LoginPageState extends State<LoginPage> {
                     }
                 ),
                 new TextFormField(
-                    keyboardType: TextInputType.number, // Texto plano
+                    keyboardType: TextInputType.number, // Nota del curso
                     decoration: new InputDecoration(
                         hintText: 'Ingrese la nota del curso',
                         labelText: 'Nota del curso'
                     ),
-                    validator: this._validateDoubles,
+                    validator: this._validateNota,
                     onSaved: (String value){
                       this._data.nota = double.parse(value);
                     }
                 ),
                 new TextFormField(
-                    keyboardType: TextInputType.text, // Texto plano
+                    keyboardType: TextInputType.text, // Cuatrimestre
                     decoration: new InputDecoration(
                         hintText: 'Ingrese el cuatrimestre',
                         labelText: 'Cuatrimestre'
@@ -206,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                     }
                 ),
                 new TextFormField(
-                    keyboardType: TextInputType.number, // Texto plano
+                    keyboardType: TextInputType.number, // Costo de la materia
                     decoration: new InputDecoration(
                         hintText: 'Ingrese le costo de la materia',
                         labelText: 'Costo'
